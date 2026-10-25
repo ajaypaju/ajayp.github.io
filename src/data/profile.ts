@@ -35,6 +35,8 @@ export interface Metric {
   /** Display value, e.g. "500+". */
   value: string
   label: string
+  /** Label in the metrics strip, when it differs from `label`. */
+  caption?: string
   /** For animated before → after metrics. */
   from?: string
   to?: string
@@ -88,6 +90,50 @@ export interface PromptToTask {
     /** Prefix of each step dot's accessible name, e.g. "Jump to step 2: MCP Server". */
     jumpTo: string
     stepsLabel: string
+  }
+}
+
+export type ArchNodeId =
+  | 'client'
+  | 'cloudflare'
+  | 'web'
+  | 'app'
+  | 'redis'
+  | 'queue'
+  | 'mysql'
+  | 'mongo'
+  | 's3'
+  | 'ai'
+  | 'integrations'
+  | 'monitoring'
+  | 'git'
+  | 'ci'
+  | 'build'
+  | 'deploy'
+
+export interface ArchNode {
+  label: string
+  /** Short second line on the node; keep it brief, the details panel has the full text. */
+  sub?: string
+  detail: string
+}
+
+export interface Architecture {
+  heading: string
+  intro: string
+  views: { request: string; deploy: string }
+  nodes: Record<ArchNodeId, ArchNode>
+  /** Labels shown at each hop of "Trace a request". */
+  hops: { edge: string; web: string; app: string; data: string; response: string }
+  /** Visually hidden ordered lists describing each flow. */
+  srRequest: string[]
+  srDeploy: string[]
+  ui: {
+    viewsLabel: string
+    trace: string
+    tracing: string
+    prompt: string
+    detailsLabel: string
   }
 }
 
@@ -161,6 +207,7 @@ export interface Profile {
   codeCard: CodeCard
   photo: Photo
   promptToTask: PromptToTask
+  architecture: Architecture
   awards: string[]
   education: Education[]
   sections: SectionMeta[]
@@ -174,6 +221,9 @@ export interface Profile {
     openToWork: string
     yearsShort: string
     orgsShort: string
+    /** Labels on the latency before/after bars in the metrics strip. */
+    metricBefore: string
+    metricAfter: string
     statusPrefix: string
     leadingEngineering: string
     bootHost: string
@@ -243,6 +293,76 @@ const promptToTask: PromptToTask = {
   },
 }
 
+const CI_DETAIL = 'CI/CD deployment workflows, including on-premise deployments.'
+
+const architecture: Architecture = {
+  heading: 'How a request flows',
+  intro:
+    'The production path I design, run and monitor, from the user’s browser through Cloudflare to servers on AWS and back. Simplified and generic; no confidential internals.',
+  views: { request: 'Request flow', deploy: 'Deploy flow' },
+  nodes: {
+    client: {
+      label: 'Client',
+      sub: 'web · app · API',
+      detail: 'Browsers, mobile apps and API clients from 500+ organizations.',
+    },
+    cloudflare: { label: 'Cloudflare', sub: 'edge', detail: 'Request flow and traffic routing at the edge.' },
+    web: { label: 'Web server', detail: 'Configure and run the web servers in front of the application.' },
+    app: {
+      label: 'App servers',
+      sub: 'AWS EC2',
+      detail: 'Laravel, Node.js and NestJS REST APIs: multi-tenancy and RBAC. Docker.',
+    },
+    redis: {
+      label: 'Redis cache',
+      detail: 'Caching that helped cut reporting latency from ~900\u00a0ms to ~300\u00a0ms.',
+    },
+    queue: { label: 'Queue workers', detail: 'Queue-based background jobs and data-aggregation pipelines.' },
+    mysql: { label: 'MySQL', sub: 'AWS RDS', detail: 'Schema design and query optimization.' },
+    mongo: { label: 'MongoDB', detail: 'Schemas for backend and reporting workloads.' },
+    s3: { label: 'AWS S3', detail: 'File storage.' },
+    ai: { label: 'AI services', sub: 'LLM APIs · MCP', detail: 'LLM chat, a role-based MCP server and AI bot users.' },
+    integrations: {
+      label: 'Integrations',
+      sub: 'payments · SSO',
+      detail: 'Stripe, Razorpay, webhooks, OAuth2 SSO, email/SMS.',
+    },
+    monitoring: { label: 'Monitoring', detail: 'Monitoring and incident resolution for production.' },
+    git: { label: 'git push', detail: CI_DETAIL },
+    ci: { label: 'GitLab CI/CD', detail: CI_DETAIL },
+    build: { label: 'Build', detail: CI_DETAIL },
+    deploy: { label: 'Deploy', sub: 'EC2 · on-premise', detail: CI_DETAIL },
+  },
+  hops: {
+    edge: 'edge routing',
+    web: 'web server',
+    app: 'app logic',
+    data: 'cache / database',
+    response: 'response',
+  },
+  srRequest: [
+    'A client (browser, mobile app or API client) sends a request.',
+    'Cloudflare routes it at the edge.',
+    'The web server passes it to the app servers on AWS EC2.',
+    'The app servers read and write Redis, queue workers, MySQL on AWS RDS, MongoDB and AWS S3, and call AI services and integrations when needed.',
+    'The response travels back along the same path to the client. Monitoring covers every server-side step.',
+  ],
+  srDeploy: [
+    'A git push starts the pipeline.',
+    'GitLab CI/CD runs it.',
+    'The build is produced.',
+    'It is deployed to servers on AWS EC2 or on-premise.',
+    'Monitoring watches the release in production.',
+  ],
+  ui: {
+    viewsLabel: 'Diagram view',
+    trace: 'Trace a request',
+    tracing: 'Tracing…',
+    prompt: 'Select a node to see what I do there.',
+    detailsLabel: 'Node details',
+  },
+}
+
 export const profile: Profile = {
   meta: {
     title: 'Ajay P · Technical Lead · Full-Stack Engineer',
@@ -273,9 +393,9 @@ export const profile: Profile = {
     'Technical Lead with 5+ years designing, building and running production systems, including a multi-tenant SaaS platform used by 500+ organizations. I own architecture, cloud infrastructure on AWS and Cloudflare, and production reliability, and lead AI integration and automation.',
 
   metrics: [
-    { id: 'organizations', value: '500+', label: 'organizations' },
+    { id: 'organizations', value: '500+', label: 'organizations', caption: 'organizations served' },
     { id: 'years', value: '5+', label: 'years building production software' },
-    { id: 'latency', value: '~300\u00a0ms', label: 'reporting API latency', from: '~900\u00a0ms', to: '~300\u00a0ms' },
+    { id: 'latency', value: '~300\u00a0ms', label: 'reporting API latency', caption: 'reporting latency', from: '~900\u00a0ms', to: '~300\u00a0ms' },
     { id: 'report-speed', value: '60%', label: 'faster report generation' },
   ],
 
@@ -378,6 +498,7 @@ export const profile: Profile = {
   ],
 
   promptToTask,
+  architecture,
 
   photo: {
     alt: 'Ajay P',
@@ -436,8 +557,8 @@ export const profile: Profile = {
     {
       id: 'architecture',
       navLabel: 'Architecture',
-      heading: 'Architecture map',
-      placeholder: 'Interactive map of a multi-tenant SaaS goes here.',
+      heading: architecture.heading,
+      placeholder: '',
     },
     {
       id: 'experience',
@@ -474,6 +595,8 @@ export const profile: Profile = {
     openToWork: 'Open to new roles',
     yearsShort: 'yrs',
     orgsShort: 'orgs',
+    metricBefore: 'before',
+    metricAfter: 'after',
     statusPrefix: 'Currently:',
     leadingEngineering: 'leading engineering for a platform serving',
     bootHost: 'ajay.dev',

@@ -26,9 +26,9 @@ interface Props {
  * loads (zero layout shift). Likely the desktop LCP element: eager, fetchpriority high, preloaded.
  * The canvas network stays visible around it.
  *
- * Depth (none under reduced motion): a static mint silhouette glow, a breathing radial glow,
- * floating chips, and pointer parallax on three layers (glow, figure, chips). The photo itself
- * is never zoomed, scanned or otherwise effected.
+ * Depth: a static mint silhouette glow (kept under reduced motion: it never moves) and, only
+ * without reduced motion, a breathing radial glow, floating chips, and pointer parallax on three
+ * layers (glow, figure, chips). The photo itself is never zoomed, scanned or otherwise effected.
  */
 export function HeroCutout({ variants }: Props) {
   const reducedMotion = usePrefersReducedMotion()
@@ -65,7 +65,7 @@ export function HeroCutout({ variants }: Props) {
             follows the mask, so the shadow fades out at the bottom with the figure. */}
         <div
           ref={layer('figure')}
-          className="relative h-full w-full motion-safe:[filter:drop-shadow(0_0_24px_var(--cutout-glow))]"
+          className="relative h-full w-full [filter:drop-shadow(0_0_24px_var(--cutout-glow))]"
         >
           <picture className="block h-full w-full [mask-image:linear-gradient(to_bottom,#000_72%,transparent)]">
             <source type="image/avif" srcSet={srcSet(cutout, 'avif')} sizes={PHOTO_SIZES} />

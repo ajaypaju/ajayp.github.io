@@ -61,7 +61,8 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 
 ## Layout
 - `src/data/profile.ts` — all content + types, including `sections` (id, nav label, heading, placeholder;
-  their order is page order and drives the `01 / …` labels), `capabilities`, `codeCard`, `photo`, and `meta`.
+  their order is page order and drives the `01 / …` labels), `capabilities`, `codeCard`, `photo`, `architecture`
+  (map nodes, details, hop labels, screen-reader flow lists) and `meta`. Metrics use `caption` in the strip.
   Derived lines (`heroStatus`, `bootLines`, `codeCardEntries`, `photoChips`) are composed there from the facts,
   never retyped.
 - `index.html` gets `<title>` and the meta description from `profile.meta` via the `profile-meta` plugin in
@@ -69,11 +70,12 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
   cutout preload (AVIF, `media="(min-width: 1024px)"`), built from `profile.photo.cutout` with `lib/images.ts`.
 - `src/components/` — `Nav`, `ThemeToggle`, `Section` (shared section shell, auto-numbered), `NetworkCanvas`,
   `RoleTyper`, `HeroCutout` (hero, 1024 px+ only), `PromptTerminal` + `FlowDiagram` (Prompt → Task),
+  `FlowMap` (architecture map: SVG edges/packets + HTML node buttons + animation engine),
   `CommandPalette`, `TerminalOverlay`.
 - `src/sections/` — one component per section.
 - `src/lib/` — `theme.ts`, `storage.ts` (the only place storage is touched), `motion.ts`
   (`usePrefersReducedMotion`), `media.ts` (`useMediaQuery`), `parallax.ts` (`useHeroParallax`), `images.ts` (srcset helpers, photo sizes),
-  `boot.ts` (once-per-session check), `promptTimeline.ts` (the Prompt → Task
+  `archLayout.ts` (map geometry per view and breakpoint), `boot.ts` (once-per-session check), `promptTimeline.ts` (the Prompt → Task
   timeline: one clock `t` drives terminal, diagram and controls).
 - `public/Ajay_P_CV.pdf` — the Download CV target (`profile.cvPath`).
 - `public/images/` — hero photos, used as supplied (don't re-encode): `ajay-cutout-{600,1200}.{avif,webp}`
@@ -95,6 +97,10 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
   and it slides in but never starts at opacity 0.
 - Hero ambient animations pause off-screen via `[data-offscreen] [class*='animate-']` (unlayered CSS so the
   `animate-*` utilities' shorthand can't reset the play state). Parallax uses one rAF loop, transforms only.
+- Architecture map: node positions are viewBox units in `lib/archLayout.ts`; buttons are HTML laid over the
+  SVG in percentages, so both scale together. Both views share one viewBox per breakpoint (no height change on
+  toggle). Packets move imperatively in one rAF loop; node highlights only change opacity. Check label fit
+  after `document.fonts.ready` (the fallback font is narrower than Inter).
 - Keep numbers and units together with a non-breaking space (`'~300\u00a0ms'`).
 
 ## Section plan (built step by step — only build the step currently asked for)
@@ -104,18 +110,20 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
    canvas network background. 1024 px+: transparent cutout, bottom-aligned at 85% of hero height (max 480 px
    wide), bottom faded with mask-image, soft mint→cyan glow behind it (`--hero-glow`, softer in light), two
    glass chips clear of the face (stats, stack), glow brightens on hover. Depth (none under reduced motion):
-   static silhouette drop-shadow (`--cutout-glow`, on the figure wrapper, never on the <img>), breathing glow,
+   static silhouette drop-shadow (`--cutout-glow`, on the figure wrapper, never on the <img>; kept under reduced
+   motion since it doesn't move), breathing glow,
    floating chips, pointer parallax (glow −12 / figure 6 / chips 10 px). No zoom/scan/glitch on the photo.
    Below 1024 px: 88 px avatar above the location.
-3. **Metrics strip** — 500+ organizations, 5+ years, reporting latency ~900 ms → ~300 ms (animated),
-   60% faster report generation.
+3. **Metrics strip (built in Step 4)** — 500+ organizations, 5+ years, reporting latency ~900 ms → ~300 ms
+   (before/after bars), 60% faster report generation. Counts up once on scroll-in (~1.2 s); final values under
+   reduced motion.
 3b. **What I do** (built in Step 2.5) — the 6 `capabilities` as cards (3 / 2 / 1 columns), hover lift on desktop.
 4. **Prompt → Task (centerpiece, section id `ai`, built in Step 3)** — content in `profile.promptToTask`.
    Terminal (left / top) + 4-node flow diagram (right / below), one ~9 s autoplay when scrolled into view,
    paused off-screen, Replay + step dots, finished state under reduced motion, "Illustrative example" label.
-5. **Architecture map** — interactive diagram of a generic multi-tenant SaaS: clients → Cloudflare →
-   Laravel/Node APIs on AWS EC2 → queues/background jobs → Redis cache → MySQL/MongoDB on RDS, S3 for files.
-   Hover or tap a node to see what Ajay built there. Generic only — no confidential internals.
+5. **Architecture map (built in Step 4)** — "How a request flows": Request flow / Deploy flow toggle, ambient
+   packets (~1 request / 2 s, varied data node), "Trace a request" with hop labels, deploy stages with checks,
+   details panel (hover / focus previews, click pins). Generic only — no confidential internals.
 6. **Experience timeline.**
 7. **Skills** — grouped grid with a "view as JSON" toggle showing the same data as syntax-highlighted JSON.
 8. **Awards and education.**
@@ -140,3 +148,4 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 - [x] Step 3.6 — hero photo card replaced by a cutout composition; old portrait files removed.
 - [x] Step 3.7 — cleaner cutout (v2), stack chip + new status line, hero depth (silhouette glow, breathing
   glow, floating chips, pointer parallax).
+- [x] Step 4 — metrics strip, request-flow architecture map; silhouette glow kept under reduced motion.
