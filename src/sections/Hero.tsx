@@ -1,6 +1,6 @@
 import { m, type Variants } from 'framer-motion'
+import { HeroCutout } from '../components/HeroCutout'
 import { NetworkCanvas } from '../components/NetworkCanvas'
-import { PhotoCard } from '../components/PhotoCard'
 import { RoleTyper } from '../components/RoleTyper'
 import { heroStatus, profile } from '../data/profile'
 import { imageUrl, PHOTO_MEDIA, srcSet } from '../lib/images'
@@ -129,13 +129,9 @@ export function Hero({ ready }: Props) {
         </m.div>
         </div>
 
-        {/* Desktop only (1024 px+): mounted only there. */}
-        {desktop && (
-          // Likely the desktop LCP element, so it slides in but never starts invisible.
-          <m.div variants={lcpItem}>
-            <PhotoCard ready={ready} reducedMotion={reducedMotion} />
-          </m.div>
-        )}
+        {/* Desktop only (1024 px+): mounted only there. Likely the LCP element, so it slides in
+            but never starts invisible. */}
+        {desktop && <HeroCutout variants={lcpItem} />}
       </m.div>
     </section>
   )

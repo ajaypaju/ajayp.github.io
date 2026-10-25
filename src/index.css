@@ -12,6 +12,7 @@
   --accent: #7cffb2; /* terminal mint */
   --accent-2: #5cc8ff; /* data-flow cyan */
   --on-accent: #0a0b0d;
+  --hero-glow: 0.3; /* opacity of the glow behind the hero cutout */
   color-scheme: dark;
 }
 
@@ -25,6 +26,7 @@
   --accent: #047857;
   --accent-2: #0369a1;
   --on-accent: #ffffff;
+  --hero-glow: 0.16;
   color-scheme: light;
 }
 

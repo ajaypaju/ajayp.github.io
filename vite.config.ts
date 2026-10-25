@@ -8,7 +8,7 @@ const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 // Fills %PROFILE_TITLE% / %PROFILE_DESCRIPTION% in index.html from profile.ts, and preloads the
-// desktop hero photo: the page renders client-side, so the browser would otherwise only discover
+// desktop hero cutout: the page renders client-side, so the browser would otherwise only discover
 // the image after the JS bundle runs. `type` makes non-AVIF browsers skip it; `media` keeps phones
 // from downloading it.
 const profileHead = (): Plugin => ({
@@ -24,7 +24,7 @@ const profileHead = (): Plugin => ({
           rel: 'preload',
           as: 'image',
           type: 'image/avif',
-          imagesrcset: srcSet(profile.photo.portrait, 'avif'),
+          imagesrcset: srcSet(profile.photo.cutout, 'avif'),
           imagesizes: PHOTO_SIZES,
           media: PHOTO_MEDIA,
           fetchpriority: 'high',

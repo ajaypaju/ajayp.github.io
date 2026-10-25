@@ -106,11 +106,9 @@ export interface ResponsiveImage {
 }
 
 export interface Photo {
-  /** Tab name on the hero photo card. */
-  fileName: string
   alt: string
-  /** 4:5 portrait, AVIF + WebP at every width, JPEG at the largest. */
-  portrait: ResponsiveImage
+  /** Desktop hero cutout (transparent background), AVIF + WebP at every width. */
+  cutout: ResponsiveImage
   /** 1:1 avatar, AVIF + WebP. */
   avatar: ResponsiveImage
   shortLocation: string
@@ -381,9 +379,8 @@ export const profile: Profile = {
   promptToTask,
 
   photo: {
-    fileName: 'ajay.jpg',
     alt: 'Ajay P',
-    portrait: { path: '/images/ajay-portrait', widths: [600, 1200], width: 1200, height: 1500 },
+    cutout: { path: '/images/ajay-cutout', widths: [600, 1200], width: 1200, height: 2060 },
     avatar: { path: '/images/ajay-avatar', widths: [192, 384], width: 384, height: 384 },
     shortLocation: 'Calicut, India',
   },
@@ -505,7 +502,7 @@ const currentRole = profile.experience[0].roles[0]
 /** Hero status line: "Currently: Technical Lead · platform serving 500+ organizations". */
 export const heroStatus = `${profile.ui.statusPrefix} ${currentRole.title} · ${profile.ui.platformServing} ${organizations.value} ${organizations.label}`
 
-/** Chips on the hero photo card. */
+/** Glass chips beside the desktop hero cutout. */
 export const photoChips = {
   role: `${currentRole.title} · ${profile.photo.shortLocation}`,
   stats: `${years.value} ${profile.ui.yearsShort} · ${organizations.value} ${profile.ui.orgsShort}`,
