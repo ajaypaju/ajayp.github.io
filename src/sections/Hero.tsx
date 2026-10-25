@@ -1,8 +1,10 @@
 import { m, type Variants } from 'framer-motion'
-import { CodeCard } from '../components/CodeCard'
 import { NetworkCanvas } from '../components/NetworkCanvas'
+import { PhotoCard } from '../components/PhotoCard'
 import { RoleTyper } from '../components/RoleTyper'
 import { heroStatus, profile } from '../data/profile'
+import { imageUrl, PHOTO_MEDIA, srcSet } from '../lib/images'
+import { useMediaQuery } from '../lib/media'
 import { usePrefersReducedMotion } from '../lib/motion'
 
 const btn =
@@ -30,6 +32,9 @@ interface Props {
 
 export function Hero({ ready }: Props) {
   const reducedMotion = usePrefersReducedMotion()
+  // Exactly one photo is mounted, so each viewport downloads only its own image.
+  const desktop = useMediaQuery(PHOTO_MEDIA)
+  const { avatar } = profile.photo
 
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative overflow-hidden">
@@ -41,6 +46,22 @@ export function Hero({ ready }: Props) {
         className="relative mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-5xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-8"
       >
         <div>
+        {!desktop && (
+          <m.div variants={item} className="mb-5">
+            <picture>
+              <source type="image/avif" srcSet={srcSet(avatar, 'avif')} sizes="88px" />
+              <source type="image/webp" srcSet={srcSet(avatar, 'webp')} sizes="88px" />
+              <img
+                src={imageUrl(avatar, avatar.widths[0], 'webp')}
+                alt={profile.photo.alt}
+                width={88}
+                height={88}
+                className="h-[88px] w-[88px] rounded-full object-cover ring-1 ring-accent/70 ring-offset-4 ring-offset-bg"
+              />
+            </picture>
+          </m.div>
+        )}
+
         <m.div variants={item} className="flex flex-wrap items-center gap-3">
           <p className="font-mono text-xs uppercase tracking-widest text-accent-2">{profile.location}</p>
           {profile.openToWork && (
@@ -108,10 +129,13 @@ export function Hero({ ready }: Props) {
         </m.div>
         </div>
 
-        {/* Desktop only; not rendered into layout below 1024 px. */}
-        <m.div variants={item} className="hidden lg:block">
-          <CodeCard />
-        </m.div>
+        {/* Desktop only (1024 px+): mounted only there. */}
+        {desktop && (
+          // Likely the desktop LCP element, so it slides in but never starts invisible.
+          <m.div variants={lcpItem}>
+            <PhotoCard ready={ready} reducedMotion={reducedMotion} />
+          </m.div>
+        )}
       </m.div>
     </section>
   )

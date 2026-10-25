@@ -61,18 +61,23 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 
 ## Layout
 - `src/data/profile.ts` — all content + types, including `sections` (id, nav label, heading, placeholder;
-  their order is page order and drives the `01 / …` labels), `capabilities`, `codeCard`, and `meta`.
-  Derived lines (`heroStatus`, `bootLines`, `codeCardEntries`) are composed there from the facts, never retyped.
+  their order is page order and drives the `01 / …` labels), `capabilities`, `codeCard`, `photo`, and `meta`.
+  Derived lines (`heroStatus`, `bootLines`, `codeCardEntries`, `photoChips`) are composed there from the facts,
+  never retyped.
 - `index.html` gets `<title>` and the meta description from `profile.meta` via the `profile-meta` plugin in
-  `vite.config.ts` (`%PROFILE_TITLE%`, `%PROFILE_DESCRIPTION%`).
+  `vite.config.ts` (`%PROFILE_TITLE%`, `%PROFILE_DESCRIPTION%`). The same plugin injects the desktop hero
+  photo preload (AVIF, `media="(min-width: 1024px)"`), built from `profile.photo` with `lib/images.ts`.
 - `src/components/` — `Nav`, `ThemeToggle`, `Section` (shared section shell, auto-numbered), `NetworkCanvas`,
-  `RoleTyper`, `CodeCard` (hero, 1024 px+ only), `PromptTerminal` + `FlowDiagram` (Prompt → Task),
+  `RoleTyper`, `PhotoCard` (hero, 1024 px+ only), `PromptTerminal` + `FlowDiagram` (Prompt → Task),
   `CommandPalette`, `TerminalOverlay`.
 - `src/sections/` — one component per section.
 - `src/lib/` — `theme.ts`, `storage.ts` (the only place storage is touched), `motion.ts`
-  (`usePrefersReducedMotion`), `boot.ts` (once-per-session check), `promptTimeline.ts` (the Prompt → Task
+  (`usePrefersReducedMotion`), `media.ts` (`useMediaQuery`), `images.ts` (srcset helpers, photo sizes),
+  `boot.ts` (once-per-session check), `promptTimeline.ts` (the Prompt → Task
   timeline: one clock `t` drives terminal, diagram and controls).
 - `public/Ajay_P_CV.pdf` — the Download CV target (`profile.cvPath`).
+- `public/images/` — hero photos, used as supplied (don't re-encode): `ajay-portrait-{600,1200}.{avif,webp}`
+  + `ajay-portrait-1200.jpg` (4:5), `ajay-avatar-{192,384}.{avif,webp}` (1:1).
 
 ## Implementation notes
 - Framer Motion is used through `LazyMotion` + `m.*` (strict mode, set in `App.tsx`) to keep the bundle small.
@@ -85,13 +90,17 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 - Large text blocks that aren't the intended LCP (e.g. the code card) render as many small line blocks.
 - Typed text: render the full line in transparent ink (reserves height, readable by screen readers) with a
   visible overlay that grows; keep the untyped remainder `invisible` in the overlay so wrapping never changes.
+- Hero images: exactly one is mounted per viewport (`useMediaQuery`), never hidden with CSS — a hidden
+  `<img>` still downloads. The desktop photo is the LCP element: eager, `fetchpriority="high"`, preloaded,
+  and it slides in but never starts at opacity 0.
 - Keep numbers and units together with a non-breaking space (`'~300\u00a0ms'`).
 
 ## Section plan (built step by step — only build the step currently asked for)
 1. **Boot sequence** — 1–1.5 s of terminal boot lines on first visit only (sessionStorage), skippable with any
    key or click, skipped entirely under reduced motion.
 2. **Hero** — name, cycling role line, tagline, status line, buttons (Download CV, Contact, Open Terminal),
-   canvas network background, and on 1024 px+ a code-editor card (`ajay.ts`) generated from profile.ts.
+   canvas network background. 1024 px+: `ajay.jpg` photo card (viewfinder corners, two chips, one scan line,
+   hover glow). Below: 88 px avatar above the location label.
 3. **Metrics strip** — 500+ organizations, 5+ years, reporting latency ~900 ms → ~300 ms (animated),
    60% faster report generation.
 3b. **What I do** (built in Step 2.5) — the 6 `capabilities` as cards (3 / 2 / 1 columns), hover lift on desktop.
@@ -110,6 +119,8 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
     `skills`, `capabilities` (alias `projects`: the 6 capabilities plus the three AI systems — MCP server,
     Claude Code integration, AI bot users), `awards`, `contact`, `cv`, `theme`, `clear`, `exit`, plus the easter egg
     `sudo hire-ajay` which opens a pre-filled email.
+    **Must also add `cat ajay.ts`**, printing `const ajay = { … }` from `codeCardEntries` (the old hero code
+    card). Its Prettier-style array wrapping lives in git history: `89e12dd:src/components/CodeCard.tsx`.
 
 ## Progress
 - [x] Step 1 — scaffold, CLAUDE.md, profile data, tokens/fonts/theme toggle, page skeleton with section stubs.
@@ -119,3 +130,4 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
   phone number, so it was not copied.
 - [x] Step 3 — CV added (`Ajay_P_CV_Web.pdf`, checked: no phone, no product name), broader positioning copy,
   Prompt → Task centerpiece.
+- [x] Step 3.5 — hero photo card (desktop) + avatar (mobile), Cloud & DevOps content.

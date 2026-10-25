@@ -96,7 +96,27 @@ export interface Capability {
   description: string
 }
 
-/** Fields of the hero code card that aren't derived from other facts. */
+export interface ResponsiveImage {
+  /** Path prefix under public/; files are `${path}-${width}.${ext}`. */
+  path: string
+  widths: number[]
+  /** Intrinsic size of the largest file (sets the aspect ratio). */
+  width: number
+  height: number
+}
+
+export interface Photo {
+  /** Tab name on the hero photo card. */
+  fileName: string
+  alt: string
+  /** 4:5 portrait, AVIF + WebP at every width, JPEG at the largest. */
+  portrait: ResponsiveImage
+  /** 1:1 avatar, AVIF + WebP. */
+  avatar: ResponsiveImage
+  shortLocation: string
+}
+
+/** Fields of `cat ajay.ts` (terminal, formerly the hero code card) that aren't derived from other facts. */
 export interface CodeCard {
   fileName: string
   variable: string
@@ -140,6 +160,7 @@ export interface Profile {
   /** "What I do" cards; also the terminal `capabilities` command (alias `projects`). */
   capabilities: Capability[]
   codeCard: CodeCard
+  photo: Photo
   promptToTask: PromptToTask
   awards: string[]
   education: Education[]
@@ -152,6 +173,8 @@ export interface Profile {
     openTerminal: string
     openTerminalSoon: string
     openToWork: string
+    yearsShort: string
+    orgsShort: string
     statusPrefix: string
     platformServing: string
     bootHost: string
@@ -231,7 +254,13 @@ export const profile: Profile = {
   title: 'Technical Lead · Full-Stack Engineer',
   tagline:
     'I design and build scalable web platforms, and integrate AI that automates real work.',
-  heroRoles: ['Technical Lead', 'Full-Stack Engineer', 'System Design & Architecture', 'AI Integration & Automation'],
+  heroRoles: [
+    'Technical Lead',
+    'Full-Stack Engineer',
+    'System Design & Architecture',
+    'AI Integration & Automation',
+    'Cloud & DevOps',
+  ],
   openToWork: false,
   location: 'Calicut, Kerala, India',
   email: 'ajaypaju008@gmail.com',
@@ -242,7 +271,7 @@ export const profile: Profile = {
   cvPath: '/Ajay_P_CV.pdf',
 
   summary:
-    'Technical Lead with 5+ years designing, building and running production systems, including a multi-tenant SaaS platform used by 500+ organizations. I own architecture, AWS infrastructure and production reliability, and lead AI integration and automation.',
+    'Technical Lead with 5+ years designing, building and running production systems, including a multi-tenant SaaS platform used by 500+ organizations. I own architecture, cloud infrastructure on AWS and Cloudflare, and production reliability, and lead AI integration and automation.',
 
   metrics: [
     { id: 'organizations', value: '500+', label: 'organizations' },
@@ -266,7 +295,7 @@ export const profile: Profile = {
             'Connected Claude Code to the platform so a plain-language prompt creates tasks automatically.',
             'Introduced AI bot users: agent accounts that are assigned tasks like any team member and carry out automated work.',
             'Built LLM-powered chat workflows for in-product help and assisted automation.',
-            'Manage AWS infrastructure (EC2, RDS, S3), monitoring and deployment workflows, including on-premise deployments.',
+            'Manage production servers and infrastructure on AWS (EC2, RDS, S3) and Cloudflare: request flow and traffic routing, web servers, Docker, monitoring and deployment workflows, including on-premise deployments.',
             'Mentor junior developers, review pull requests, set engineering standards, coordinate releases with Product and QA.',
           ],
         },
@@ -299,7 +328,17 @@ export const profile: Profile = {
     { group: 'Frontend', items: ['React', 'TypeScript (this website)', 'HTML', 'CSS', 'JavaScript'] },
     {
       group: 'Cloud & DevOps',
-      items: ['AWS (EC2, S3, RDS)', 'Docker', 'GitLab CI/CD', 'GitHub', 'Cloudflare', 'Linux', 'Monitoring'],
+      items: [
+        'AWS (EC2, S3, RDS)',
+        'Cloudflare',
+        'Server management',
+        'Web servers',
+        'Docker',
+        'GitLab CI/CD',
+        'GitHub',
+        'Linux',
+        'Monitoring',
+      ],
     },
     { group: 'Databases', items: ['MySQL', 'MongoDB', 'Redis'] },
     {
@@ -334,16 +373,25 @@ export const profile: Profile = {
     },
     {
       title: 'Cloud & DevOps',
-      description: 'AWS (EC2, RDS, S3), Docker, GitLab CI/CD, monitoring, and on-premise deployments.',
+      description:
+        'Run production servers on AWS and Cloudflare: request flow, web servers, Docker, GitLab CI/CD, monitoring and on-premise deployments.',
     },
   ],
 
   promptToTask,
 
+  photo: {
+    fileName: 'ajay.jpg',
+    alt: 'Ajay P',
+    portrait: { path: '/images/ajay-portrait', widths: [600, 1200], width: 1200, height: 1500 },
+    avatar: { path: '/images/ajay-avatar', widths: [192, 384], width: 384, height: 384 },
+    shortLocation: 'Calicut, India',
+  },
+
   codeCard: {
     fileName: 'ajay.ts',
     variable: 'ajay',
-    focus: ['System design', 'Backend & APIs', 'AI automation', 'Full-stack'],
+    focus: ['System design', 'Backend & APIs', 'AI automation', 'Full-stack', 'Cloud & DevOps'],
     stack: ['Laravel', 'Node.js', 'NestJS', 'React', 'AWS'],
     status: 'shipping',
   },
@@ -426,6 +474,8 @@ export const profile: Profile = {
     openTerminal: 'Open Terminal',
     openTerminalSoon: 'Terminal mode is coming soon',
     openToWork: 'Open to new roles',
+    yearsShort: 'yrs',
+    orgsShort: 'orgs',
     statusPrefix: 'Currently:',
     platformServing: 'platform serving',
     bootHost: 'ajay.dev',
@@ -455,7 +505,13 @@ const currentRole = profile.experience[0].roles[0]
 /** Hero status line: "Currently: Technical Lead · platform serving 500+ organizations". */
 export const heroStatus = `${profile.ui.statusPrefix} ${currentRole.title} · ${profile.ui.platformServing} ${organizations.value} ${organizations.label}`
 
-/** Hero code card: `const ajay = { ... }`, in display order. */
+/** Chips on the hero photo card. */
+export const photoChips = {
+  role: `${currentRole.title} · ${profile.photo.shortLocation}`,
+  stats: `${years.value} ${profile.ui.yearsShort} · ${organizations.value} ${profile.ui.orgsShort}`,
+}
+
+/** `const ajay = { ... }` for the terminal's `cat ajay.ts`, in display order. */
 export const codeCardEntries: [key: string, value: string | string[]][] = [
   ['role', currentRole.title],
   ['experience', `${years.value} years`],

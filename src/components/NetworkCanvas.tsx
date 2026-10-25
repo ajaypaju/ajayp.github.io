@@ -79,9 +79,9 @@ export function NetworkCanvas() {
       canvas.height = Math.round(height * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-      // Hub sits right of the hero copy on tablets, top-right on phones, and above the
-      // code card on desktop so the card never hides it.
-      const [hx, hy] = width >= 1024 ? [0.8, 0.12] : width >= 768 ? [0.74, 0.48] : [0.78, 0.2]
+      // Hub sits right of the hero copy on tablets, top-right on phones, and on desktop in the
+      // open space above the photo card, clear of the card and its stats chip.
+      const [hx, hy] = width >= 1024 ? [0.6, 0.1] : width >= 768 ? [0.74, 0.48] : [0.78, 0.2]
       hub = { x: width * hx, y: height * hy, vx: 0, vy: 0 }
 
       const count = Math.max(MIN_NODES, Math.min(MAX_NODES, Math.round((window.innerWidth * window.innerHeight) / AREA_PER_NODE)))
