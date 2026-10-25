@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { writeStorage } from './storage'
 
 export type Theme = 'dark' | 'light'
 
@@ -13,11 +14,8 @@ export function useTheme() {
 
   const setTheme = useCallback((next: Theme) => {
     document.documentElement.dataset.theme = next
-    try {
-      localStorage.setItem(STORAGE_KEY, next)
-    } catch {
-      // Storage can be blocked (private mode, disabled site data); the theme still applies for this visit.
-    }
+    // If storage is blocked the theme still applies for this visit.
+    writeStorage('local', STORAGE_KEY, next)
     setThemeState(next)
   }, [])
 

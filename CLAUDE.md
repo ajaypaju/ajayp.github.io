@@ -50,10 +50,20 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 
 ## Layout
 - `src/data/profile.ts` — all content + types, including `sections` (id, nav label, heading, placeholder).
-- `src/components/` — `Nav`, `ThemeToggle`, `Section` (shared section shell), `CommandPalette`, `TerminalOverlay`.
+  Derived lines (`heroStatus`, `bootLines`) are composed there from the facts, never retyped.
+- `src/components/` — `Nav`, `ThemeToggle`, `Section` (shared section shell), `NetworkCanvas`, `RoleTyper`,
+  `CommandPalette`, `TerminalOverlay`.
 - `src/sections/` — one component per section.
-- `src/lib/` — hooks/utilities (`theme.ts`).
+- `src/lib/` — `theme.ts`, `storage.ts` (the only place storage is touched), `motion.ts`
+  (`usePrefersReducedMotion`), `boot.ts` (once-per-session check).
 - `public/Ajay_P_CV.pdf` — the Download CV target (`profile.cvPath`).
+
+## Implementation notes
+- Framer Motion is used through `LazyMotion` + `m.*` (strict mode, set in `App.tsx`) to keep the bundle small.
+  Use `m.div`, not `motion.div`.
+- Hero LCP elements (name, tagline) must never start at opacity 0; they only slide.
+- Google Fonts load non-blocking (`media="print"` swap in `index.html`); don't make them render-blocking again.
+- The boot overlay covers the page but the page renders underneath from the first frame.
 
 ## Section plan (built step by step — only build the step currently asked for)
 1. **Boot sequence** — 1–1.5 s of terminal boot lines on first visit only (sessionStorage), skippable with any
@@ -79,3 +89,4 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 
 ## Progress
 - [x] Step 1 — scaffold, CLAUDE.md, profile data, tokens/fonts/theme toggle, page skeleton with section stubs.
+- [x] Step 2 — data updates (skills, projects, openToWork), boot sequence, hero, network canvas.

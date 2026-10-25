@@ -1,7 +1,10 @@
+import { AnimatePresence, domAnimation, LazyMotion } from 'framer-motion'
+import { useCallback, useState } from 'react'
 import { CommandPalette } from './components/CommandPalette'
 import { Nav } from './components/Nav'
 import { TerminalOverlay } from './components/TerminalOverlay'
 import { profile } from './data/profile'
+import { shouldPlayBoot } from './lib/boot'
 import { useTheme } from './lib/theme'
 import { Architecture } from './sections/Architecture'
 import { Awards } from './sections/Awards'
@@ -17,19 +20,21 @@ const year = new Date().getFullYear()
 
 export default function App() {
   const { theme, toggleTheme } = useTheme()
+  const [booting, setBooting] = useState(shouldPlayBoot)
+  const endBoot = useCallback(() => setBooting(false), [])
 
   return (
-    <>
-      <BootSequence />
+    <LazyMotion features={domAnimation} strict>
+      <AnimatePresence>{booting && <BootSequence onDone={endBoot} />}</AnimatePresence>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:text-on-accent"
       >
-        Skip to content
+        {profile.ui.skipLink}
       </a>
       <Nav theme={theme} onToggleTheme={toggleTheme} />
       <main id="main">
-        <Hero />
+        <Hero ready={!booting} />
         <Metrics />
         <PromptToTask />
         <Architecture />
@@ -45,6 +50,6 @@ export default function App() {
       </footer>
       <CommandPalette />
       <TerminalOverlay />
-    </>
+    </LazyMotion>
   )
 }

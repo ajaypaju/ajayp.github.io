@@ -19,7 +19,7 @@ export function Nav({ theme, onToggleTheme }: Props) {
           </span>
           ajay-p
         </a>
-        <ul className="flex min-w-0 flex-1 gap-1 overflow-x-auto font-mono text-xs [scrollbar-width:none]">
+        <ul className="flex min-w-0 flex-1 gap-1 overflow-x-auto font-mono text-xs [scrollbar-width:none] max-md:[mask-image:linear-gradient(to_right,#000_80%,transparent)]">
           {navSections.map((s) => (
             <li key={s.id} className="shrink-0">
               <a

@@ -1,41 +1,110 @@
-import { profile } from '../data/profile'
+import { m, type Variants } from 'framer-motion'
+import { NetworkCanvas } from '../components/NetworkCanvas'
+import { RoleTyper } from '../components/RoleTyper'
+import { heroStatus, profile } from '../data/profile'
+import { usePrefersReducedMotion } from '../lib/motion'
 
 const btn =
   'inline-flex h-11 items-center justify-center rounded-md px-5 font-mono text-sm transition-colors'
 
-export function Hero() {
+// Staggered entrance, ~550 ms end to end (7 items × 45 ms + 300 ms).
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.045 } },
+}
+const item: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+}
+// The name and tagline are the likely LCP elements: they slide but never start invisible.
+const lcpItem: Variants = {
+  hidden: { opacity: 1, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+}
+
+interface Props {
+  /** False while the boot overlay is up; the entrance plays when it hands off. */
+  ready: boolean
+}
+
+export function Hero({ ready }: Props) {
+  const reducedMotion = usePrefersReducedMotion()
+
   return (
-    <section id="hero" aria-labelledby="hero-heading" className="relative">
-      {/* Canvas network background comes in a later step. */}
-      <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6 sm:py-32">
-        <p className="font-mono text-xs uppercase tracking-widest text-accent-2">{profile.location}</p>
-        <h1 id="hero-heading" className="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">
+    <section id="hero" aria-labelledby="hero-heading" className="relative overflow-hidden">
+      <NetworkCanvas />
+      <m.div
+        variants={container}
+        initial={reducedMotion ? false : 'hidden'}
+        animate={ready || reducedMotion ? 'show' : 'hidden'}
+        className="relative mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-5xl flex-col justify-center px-4 py-20 sm:px-6"
+      >
+        <m.div variants={item} className="flex flex-wrap items-center gap-3">
+          <p className="font-mono text-xs uppercase tracking-widest text-accent-2">{profile.location}</p>
+          {profile.openToWork && (
+            <p className="rounded-full border border-accent/40 px-2.5 py-0.5 font-mono text-xs text-accent">
+              {profile.ui.openToWork}
+            </p>
+          )}
+        </m.div>
+
+        <m.h1
+          variants={lcpItem}
+          id="hero-heading"
+          className="mt-4 text-5xl font-bold tracking-tight sm:text-7xl"
+        >
           {profile.name}
-        </h1>
-        <p className="mt-3 font-mono text-base text-accent sm:text-lg">{profile.title}</p>
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">{profile.tagline}</p>
-        <div className="mt-10 flex flex-wrap gap-3">
+        </m.h1>
+
+        {/* Two lines reserved on phones so the longest role never shifts the layout. */}
+        <m.p
+          variants={item}
+          className="mt-4 min-h-[3.5rem] font-mono text-base text-accent sm:min-h-0 sm:text-lg"
+        >
+          <span aria-hidden="true" className="text-muted">
+            &gt;{' '}
+          </span>
+          <RoleTyper
+            roles={profile.heroRoles}
+            staticText={profile.title}
+            active={ready}
+            reducedMotion={reducedMotion}
+          />
+        </m.p>
+
+        <m.p variants={lcpItem} className="mt-4 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">
+          {profile.tagline}
+        </m.p>
+
+        <m.p variants={item} className="mt-6 flex items-center gap-2.5 font-mono text-xs text-muted sm:text-sm">
+          <span aria-hidden="true" className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 motion-safe:animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+          </span>
+          {heroStatus}
+        </m.p>
+
+        <m.div variants={item} className="mt-10 flex flex-wrap gap-3">
           <a href={profile.cvPath} download className={`${btn} bg-accent text-on-accent hover:opacity-90`}>
-            Download CV
+            {profile.ui.downloadCv}
           </a>
-          <a
-            href="#contact"
-            className={`${btn} border border-line bg-surface text-text hover:border-accent`}
-          >
-            Contact
+          <a href="#contact" className={`${btn} border border-line bg-surface text-text hover:border-accent`}>
+            {profile.ui.contact}
           </a>
           {/* Wired to the terminal overlay in a later step. */}
           <button
             type="button"
             disabled
-            title="Terminal mode is coming soon"
+            title={profile.ui.openTerminalSoon}
             className={`${btn} border border-line text-muted disabled:cursor-not-allowed`}
           >
-            <span aria-hidden="true" className="mr-2 text-accent">&gt;_</span>
-            Open Terminal
+            <span aria-hidden="true" className="mr-2 text-accent">
+              &gt;_
+            </span>
+            {profile.ui.openTerminal}
           </button>
-        </div>
-      </div>
+        </m.div>
+      </m.div>
     </section>
   )
 }
