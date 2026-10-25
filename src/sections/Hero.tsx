@@ -43,7 +43,7 @@ export function Hero({ ready }: Props) {
         variants={container}
         initial={reducedMotion ? false : 'hidden'}
         animate={ready || reducedMotion ? 'show' : 'hidden'}
-        className="relative mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-5xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-8"
+        className="relative mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-5xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-8"
       >
         <div>
         {!desktop && (
@@ -95,7 +95,8 @@ export function Hero({ ready }: Props) {
           {profile.tagline}
         </m.p>
 
-        {/* One line from 1024 px: the code card leaves ~496 px for this column. */}
+        {/* One line from 1024 px: the 24rem right column (the cutout is absolutely positioned and
+            doesn't need more) leaves ~560 px here for the ~537 px line. */}
         <m.p
           variants={item}
           className="mt-6 flex items-center gap-2.5 font-mono text-xs text-muted sm:text-sm lg:whitespace-nowrap lg:text-xs"

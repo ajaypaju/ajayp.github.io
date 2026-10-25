@@ -13,7 +13,7 @@ export const imageUrl = (img: ImageSet, width: number, ext: 'avif' | 'webp' | 'j
   `${img.path}-${width}.${ext}`
 
 // Desktop hero cutout geometry: 85% of the hero's height (viewport minus the 3.5rem nav), capped
-// at 480 px wide; the image is 600:1030, so width = height × 0.5825 → 0.85 × 0.5825 ≈ 0.495.
+// at 480 px wide; the image is 600:1028, so width = height × 0.5837 → 0.85 × 0.5837 ≈ 0.496.
 export const PHOTO_MEDIA = '(min-width: 1024px)'
 export const PHOTO_MAX_WIDTH = 480
-export const PHOTO_SIZES = `min(${PHOTO_MAX_WIDTH}px, calc((100vh - 3.5rem) * 0.495))`
+export const PHOTO_SIZES = `min(${PHOTO_MAX_WIDTH}px, calc((100vh - 3.5rem) * 0.496))`

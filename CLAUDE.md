@@ -72,12 +72,12 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
   `CommandPalette`, `TerminalOverlay`.
 - `src/sections/` — one component per section.
 - `src/lib/` — `theme.ts`, `storage.ts` (the only place storage is touched), `motion.ts`
-  (`usePrefersReducedMotion`), `media.ts` (`useMediaQuery`), `images.ts` (srcset helpers, photo sizes),
+  (`usePrefersReducedMotion`), `media.ts` (`useMediaQuery`), `parallax.ts` (`useHeroParallax`), `images.ts` (srcset helpers, photo sizes),
   `boot.ts` (once-per-session check), `promptTimeline.ts` (the Prompt → Task
   timeline: one clock `t` drives terminal, diagram and controls).
 - `public/Ajay_P_CV.pdf` — the Download CV target (`profile.cvPath`).
 - `public/images/` — hero photos, used as supplied (don't re-encode): `ajay-cutout-{600,1200}.{avif,webp}`
-  (transparent, 600:1030) for desktop, `ajay-avatar-{192,384}.{avif,webp}` (1:1) below 1024 px.
+  (transparent, 600:1028 and 1200:2055) for desktop, `ajay-avatar-{192,384}.{avif,webp}` (1:1) below 1024 px.
 
 ## Implementation notes
 - Framer Motion is used through `LazyMotion` + `m.*` (strict mode, set in `App.tsx`) to keep the bundle small.
@@ -93,6 +93,8 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 - Hero images: exactly one is mounted per viewport (`useMediaQuery`), never hidden with CSS — a hidden
   `<img>` still downloads. The desktop photo is the LCP element: eager, `fetchpriority="high"`, preloaded,
   and it slides in but never starts at opacity 0.
+- Hero ambient animations pause off-screen via `[data-offscreen] [class*='animate-']` (unlayered CSS so the
+  `animate-*` utilities' shorthand can't reset the play state). Parallax uses one rAF loop, transforms only.
 - Keep numbers and units together with a non-breaking space (`'~300\u00a0ms'`).
 
 ## Section plan (built step by step — only build the step currently asked for)
@@ -101,7 +103,10 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 2. **Hero** — name, cycling role line, tagline, status line, buttons (Download CV, Contact, Open Terminal),
    canvas network background. 1024 px+: transparent cutout, bottom-aligned at 85% of hero height (max 480 px
    wide), bottom faded with mask-image, soft mint→cyan glow behind it (`--hero-glow`, softer in light), two
-   glass chips clear of the face, glow brightens on hover. Below 1024 px: 88 px avatar above the location.
+   glass chips clear of the face (stats, stack), glow brightens on hover. Depth (none under reduced motion):
+   static silhouette drop-shadow (`--cutout-glow`, on the figure wrapper, never on the <img>), breathing glow,
+   floating chips, pointer parallax (glow −12 / figure 6 / chips 10 px). No zoom/scan/glitch on the photo.
+   Below 1024 px: 88 px avatar above the location.
 3. **Metrics strip** — 500+ organizations, 5+ years, reporting latency ~900 ms → ~300 ms (animated),
    60% faster report generation.
 3b. **What I do** (built in Step 2.5) — the 6 `capabilities` as cards (3 / 2 / 1 columns), hover lift on desktop.
@@ -133,3 +138,5 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
   Prompt → Task centerpiece.
 - [x] Step 3.5 — hero photo card (desktop) + avatar (mobile), Cloud & DevOps content.
 - [x] Step 3.6 — hero photo card replaced by a cutout composition; old portrait files removed.
+- [x] Step 3.7 — cleaner cutout (v2), stack chip + new status line, hero depth (silhouette glow, breathing
+  glow, floating chips, pointer parallax).

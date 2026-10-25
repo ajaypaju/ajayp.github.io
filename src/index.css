@@ -13,6 +13,7 @@
   --accent-2: #5cc8ff; /* data-flow cyan */
   --on-accent: #0a0b0d;
   --hero-glow: 0.3; /* opacity of the glow behind the hero cutout */
+  --cutout-glow: color-mix(in oklab, var(--accent) 12%, transparent); /* silhouette drop-shadow */
   color-scheme: dark;
 }
 
@@ -27,6 +28,7 @@
   --accent-2: #0369a1;
   --on-accent: #ffffff;
   --hero-glow: 0.16;
+  --cutout-glow: color-mix(in oklab, var(--accent) 6%, transparent);
   color-scheme: light;
 }
 
@@ -44,6 +46,28 @@
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --animate-blink: blink 1s steps(1, end) infinite;
+  /* Hero depth (desktop): breathing glow and floating chips, out of phase with each other. */
+  --animate-breathe: breathe 6s ease-in-out infinite;
+  --animate-float-a: float 5.5s ease-in-out infinite;
+  --animate-float-b: float 6.8s ease-in-out -2.6s infinite;
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(3px);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
   @keyframes blink {
     50% {
       opacity: 0;
@@ -71,6 +95,31 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
+}
+
+@layer components {
+  /* Glow behind the hero cutout. Two layers so everything stays compositor-only (opacity):
+     the outer holds the theme strength and the hover boost; the inner breathes 0.6–1.0, i.e.
+     ±25% around 0.8, so the outer is scaled by 1/0.8 to keep the theme value as the average. */
+  .hero-glow {
+    opacity: calc(var(--hero-glow) / 0.8);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-glow {
+      transition: opacity 500ms ease;
+    }
+    .group:hover .hero-glow {
+      opacity: calc(var(--hero-glow) / 0.8 * 1.35);
+    }
+  }
+}
+
+/* Set by the hero while it's off-screen: pause every ambient animation inside it. Matches by
+   substring because Tailwind's class names carry the variant (e.g. `motion-safe:animate-breathe`).
+   Unlayered on purpose: the `animate-*` utilities' `animation` shorthand would otherwise reset
+   the play state from the later utilities layer. */
+[data-offscreen] [class*='animate-'] {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -111,7 +111,8 @@ export interface Photo {
   cutout: ResponsiveImage
   /** 1:1 avatar, AVIF + WebP. */
   avatar: ResponsiveImage
-  shortLocation: string
+  /** Short stack line on the desktop hero chip, e.g. "Laravel · Node.js · AWS · AI". */
+  heroStack: string[]
 }
 
 /** Fields of `cat ajay.ts` (terminal, formerly the hero code card) that aren't derived from other facts. */
@@ -174,7 +175,7 @@ export interface Profile {
     yearsShort: string
     orgsShort: string
     statusPrefix: string
-    platformServing: string
+    leadingEngineering: string
     bootHost: string
     bootSkipHint: string
   }
@@ -380,9 +381,9 @@ export const profile: Profile = {
 
   photo: {
     alt: 'Ajay P',
-    cutout: { path: '/images/ajay-cutout', widths: [600, 1200], width: 1200, height: 2060 },
+    cutout: { path: '/images/ajay-cutout', widths: [600, 1200], width: 1200, height: 2055 },
     avatar: { path: '/images/ajay-avatar', widths: [192, 384], width: 384, height: 384 },
-    shortLocation: 'Calicut, India',
+    heroStack: ['Laravel', 'Node.js', 'AWS', 'AI'],
   },
 
   codeCard: {
@@ -474,7 +475,7 @@ export const profile: Profile = {
     yearsShort: 'yrs',
     orgsShort: 'orgs',
     statusPrefix: 'Currently:',
-    platformServing: 'platform serving',
+    leadingEngineering: 'leading engineering for a platform serving',
     bootHost: 'ajay.dev',
     bootSkipHint: 'press any key to skip',
   },
@@ -499,12 +500,12 @@ const latency = metricById('latency')
 const years = metricById('years')
 const currentRole = profile.experience[0].roles[0]
 
-/** Hero status line: "Currently: Technical Lead · platform serving 500+ organizations". */
-export const heroStatus = `${profile.ui.statusPrefix} ${currentRole.title} · ${profile.ui.platformServing} ${organizations.value} ${organizations.label}`
+/** Hero status line: "Currently: leading engineering for a platform serving 500+ organizations". */
+export const heroStatus = `${profile.ui.statusPrefix} ${profile.ui.leadingEngineering} ${organizations.value} ${organizations.label}`
 
 /** Glass chips beside the desktop hero cutout. */
 export const photoChips = {
-  role: `${currentRole.title} · ${profile.photo.shortLocation}`,
+  stack: profile.photo.heroStack.join(' · '),
   stats: `${years.value} ${profile.ui.yearsShort} · ${organizations.value} ${profile.ui.orgsShort}`,
 }
 
