@@ -6,7 +6,7 @@ export type SectionId =
   | 'hero'
   | 'metrics'
   | 'what-i-do'
-  | 'prompt-to-task'
+  | 'ai'
   | 'architecture'
   | 'experience'
   | 'skills'
@@ -58,6 +58,39 @@ export interface SkillGroup {
   items: string[]
 }
 
+export type TranscriptKind = 'shell' | 'prompt' | 'call' | 'ok'
+
+/** One terminal line. The prefix ($, >, →, ✓) comes from `kind`; don't repeat it in `text`. */
+export interface TranscriptLine {
+  kind: TranscriptKind
+  text: string
+}
+
+export type FlowIcon = 'terminal' | 'shield' | 'server' | 'bot'
+
+export interface FlowStep {
+  node: string
+  caption: string
+  icon: FlowIcon
+  lines: TranscriptLine[]
+}
+
+export interface PromptToTask {
+  heading: string
+  intro: string
+  /** Shown on the terminal: the transcript is a demo of the flow, not real customer data. */
+  exampleLabel: string
+  terminalTitle: string
+  steps: FlowStep[]
+  takeaways: { title: string; text: string }[]
+  ui: {
+    replay: string
+    /** Prefix of each step dot's accessible name, e.g. "Jump to step 2: MCP Server". */
+    jumpTo: string
+    stepsLabel: string
+  }
+}
+
 export interface Capability {
   title: string
   description: string
@@ -107,6 +140,7 @@ export interface Profile {
   /** "What I do" cards; also the terminal `capabilities` command (alias `projects`). */
   capabilities: Capability[]
   codeCard: CodeCard
+  promptToTask: PromptToTask
   awards: string[]
   education: Education[]
   sections: SectionMeta[]
@@ -125,16 +159,78 @@ export interface Profile {
   }
 }
 
+const promptToTask: PromptToTask = {
+  heading: 'Prompt → Task',
+  intro:
+    'How I connected an AI coding assistant to a production SaaS platform: one plain-language prompt in, a task created and completed by an AI bot user.',
+  exampleLabel: 'Illustrative example',
+  terminalTitle: 'claude — demo',
+  steps: [
+    {
+      node: 'Claude Code',
+      caption: 'A plain-language prompt.',
+      icon: 'terminal',
+      lines: [
+        { kind: 'shell', text: 'claude' },
+        {
+          kind: 'prompt',
+          text: 'Create a task "Generate weekly client report", assign it to the reporting bot, due Friday',
+        },
+      ],
+    },
+    {
+      node: 'MCP Server',
+      caption: 'Role-based access check.',
+      icon: 'shield',
+      lines: [
+        { kind: 'call', text: 'mcp tools/call: create_task' },
+        { kind: 'ok', text: 'role check passed: user can create tasks in this workspace' },
+      ],
+    },
+    {
+      node: 'Platform API',
+      caption: 'The task is created.',
+      icon: 'server',
+      lines: [
+        { kind: 'call', text: 'POST /api/tasks' },
+        { kind: 'ok', text: '201 Created: "Generate weekly client report"' },
+      ],
+    },
+    {
+      node: 'AI Bot User',
+      caption: 'A bot teammate picks it up and completes it.',
+      icon: 'bot',
+      lines: [
+        { kind: 'call', text: 'report-bot picked up the task' },
+        { kind: 'ok', text: 'task completed' },
+      ],
+    },
+  ],
+  takeaways: [
+    { title: 'Permissions enforced', text: 'The MCP server scopes every action to the user’s role.' },
+    { title: 'Prompts become real work', text: 'Plain language turns into tasks inside the platform.' },
+    {
+      title: 'AI as a teammate',
+      text: 'Bot users are assigned tasks like anyone else and complete automated work.',
+    },
+  ],
+  ui: {
+    replay: 'Replay',
+    jumpTo: 'Jump to step',
+    stepsLabel: 'Walkthrough steps',
+  },
+}
+
 export const profile: Profile = {
   meta: {
     title: 'Ajay P · Technical Lead · Full-Stack Engineer',
     description:
-      'Ajay P, Technical Lead and Full-Stack Engineer. Designs, builds and scales a multi-tenant SaaS platform used by 500+ organizations, and integrates AI that automates real work.',
+      'Ajay P, Technical Lead and Full-Stack Engineer. Designs and builds scalable web platforms, including a multi-tenant SaaS used by 500+ organizations, and integrates AI that automates real work.',
   },
   name: 'Ajay P',
   title: 'Technical Lead · Full-Stack Engineer',
   tagline:
-    'I design, build and scale SaaS platforms, and integrate AI that automates real work.',
+    'I design and build scalable web platforms, and integrate AI that automates real work.',
   heroRoles: ['Technical Lead', 'Full-Stack Engineer', 'System Design & Architecture', 'AI Integration & Automation'],
   openToWork: false,
   location: 'Calicut, Kerala, India',
@@ -146,11 +242,11 @@ export const profile: Profile = {
   cvPath: '/Ajay_P_CV.pdf',
 
   summary:
-    'Technical Lead with 5+ years designing, building and running a production multi-tenant SaaS platform used by 500+ organizations. I own architecture, AWS infrastructure and production reliability, and lead AI integration and automation.',
+    'Technical Lead with 5+ years designing, building and running production systems, including a multi-tenant SaaS platform used by 500+ organizations. I own architecture, AWS infrastructure and production reliability, and lead AI integration and automation.',
 
   metrics: [
     { id: 'organizations', value: '500+', label: 'organizations' },
-    { id: 'years', value: '5+', label: 'years building production SaaS' },
+    { id: 'years', value: '5+', label: 'years building production software' },
     { id: 'latency', value: '~300\u00a0ms', label: 'reporting API latency', from: '~900\u00a0ms', to: '~300\u00a0ms' },
     { id: 'report-speed', value: '60%', label: 'faster report generation' },
   ],
@@ -242,10 +338,12 @@ export const profile: Profile = {
     },
   ],
 
+  promptToTask,
+
   codeCard: {
     fileName: 'ajay.ts',
     variable: 'ajay',
-    focus: ['SaaS architecture', 'AI automation', 'Full-stack'],
+    focus: ['System design', 'Backend & APIs', 'AI automation', 'Full-stack'],
     stack: ['Laravel', 'Node.js', 'NestJS', 'React', 'AWS'],
     status: 'shipping',
   },
@@ -284,10 +382,10 @@ export const profile: Profile = {
       placeholder: '',
     },
     {
-      id: 'prompt-to-task',
+      id: 'ai',
       navLabel: 'AI',
-      heading: 'Prompt → Task',
-      placeholder: 'Walkthrough: Claude Code prompt → role-based MCP server → platform API → AI bot user.',
+      heading: promptToTask.heading,
+      placeholder: '',
     },
     {
       id: 'architecture',
@@ -328,8 +426,8 @@ export const profile: Profile = {
     openTerminal: 'Open Terminal',
     openTerminalSoon: 'Terminal mode is coming soon',
     openToWork: 'Open to new roles',
-    statusPrefix: 'Currently',
-    platformServing: 'SaaS platform serving',
+    statusPrefix: 'Currently:',
+    platformServing: 'platform serving',
     bootHost: 'ajay.dev',
     bootSkipHint: 'press any key to skip',
   },
@@ -354,8 +452,8 @@ const latency = metricById('latency')
 const years = metricById('years')
 const currentRole = profile.experience[0].roles[0]
 
-/** Hero status line: "Currently · Technical Lead · SaaS platform serving 500+ organizations". */
-export const heroStatus = `${profile.ui.statusPrefix} · ${currentRole.title} · ${profile.ui.platformServing} ${organizations.value} ${organizations.label}`
+/** Hero status line: "Currently: Technical Lead · platform serving 500+ organizations". */
+export const heroStatus = `${profile.ui.statusPrefix} ${currentRole.title} · ${profile.ui.platformServing} ${organizations.value} ${organizations.label}`
 
 /** Hero code card: `const ajay = { ... }`, in display order. */
 export const codeCardEntries: [key: string, value: string | string[]][] = [

@@ -38,7 +38,7 @@ export function Hero({ ready }: Props) {
         variants={container}
         initial={reducedMotion ? false : 'hidden'}
         animate={ready || reducedMotion ? 'show' : 'hidden'}
-        className="relative mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-5xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_31rem]"
+        className="relative mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-5xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-8"
       >
         <div>
         <m.div variants={item} className="flex flex-wrap items-center gap-3">
@@ -74,7 +74,11 @@ export function Hero({ ready }: Props) {
           {profile.tagline}
         </m.p>
 
-        <m.p variants={item} className="mt-6 flex items-center gap-2.5 font-mono text-xs text-muted sm:text-sm">
+        {/* One line from 1024 px: the code card leaves ~496 px for this column. */}
+        <m.p
+          variants={item}
+          className="mt-6 flex items-center gap-2.5 font-mono text-xs text-muted sm:text-sm lg:whitespace-nowrap lg:text-xs"
+        >
           <span aria-hidden="true" className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 motion-safe:animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />

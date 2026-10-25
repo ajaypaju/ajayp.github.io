@@ -6,15 +6,17 @@ const numbered = profile.sections.filter((s) => s.id !== 'hero').map((s) => s.id
 
 interface Props {
   id: SectionId
+  /** Extra classes for the <section>, e.g. a background. */
+  className?: string
   children?: ReactNode
 }
 
-export function Section({ id, children }: Props) {
+export function Section({ id, className = '', children }: Props) {
   const meta = sectionById(id)
   const headingId = `${id}-heading`
   const index = String(numbered.indexOf(id) + 1).padStart(2, '0')
   return (
-    <section id={id} aria-labelledby={headingId} className="border-t border-line py-16 sm:py-24">
+    <section id={id} aria-labelledby={headingId} className={`border-t border-line py-16 sm:py-24 ${className}`}>
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <p className="font-mono text-xs uppercase tracking-widest text-accent-2">
           <span aria-hidden="true">{index} / </span>

@@ -6,7 +6,7 @@ import { codeCardEntries, profile } from '../data/profile'
 
 // Longest line (in characters, indent included) that fits the card at its 1024 px+ width.
 // Longer arrays break one item per line, like Prettier would, so edits to profile.ts can't overflow.
-const MAX_LINE = 58
+const MAX_LINE = 52
 
 const inlineLength = (key: string, items: string[]) =>
   `  ${key}: [${items.map((item) => `"${item}"`).join(', ')}],`.length
