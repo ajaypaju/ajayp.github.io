@@ -1,0 +1,71 @@
+@import 'tailwindcss';
+
+/* Theme tokens. Components use the Tailwind names below (bg-bg, text-muted,
+   border-line, text-accent, ...), never raw hex values. */
+:root,
+[data-theme='dark'] {
+  --bg: #0a0b0d;
+  --surface: #121419;
+  --line: #1f232b;
+  --text: #e6e8eb;
+  --muted: #8a93a3;
+  --accent: #7cffb2; /* terminal mint */
+  --accent-2: #5cc8ff; /* data-flow cyan */
+  --on-accent: #0a0b0d;
+  color-scheme: dark;
+}
+
+/* Light accents are darkened so they keep 4.5:1+ contrast as text. */
+[data-theme='light'] {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --line: #dde1e7;
+  --text: #0f1115;
+  --muted: #586170;
+  --accent: #047857;
+  --accent-2: #0369a1;
+  --on-accent: #ffffff;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-on-accent: var(--on-accent);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem; /* clears the sticky nav on anchor jumps */
+  }
+
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
