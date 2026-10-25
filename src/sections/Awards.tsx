@@ -1,5 +1,5 @@
 import { Section } from '../components/Section'
 
 export function Awards() {
-  return <Section id="awards" index="06" />
+  return <Section id="awards" />
 }

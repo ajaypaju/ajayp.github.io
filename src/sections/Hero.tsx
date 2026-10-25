@@ -1,4 +1,5 @@
 import { m, type Variants } from 'framer-motion'
+import { CodeCard } from '../components/CodeCard'
 import { NetworkCanvas } from '../components/NetworkCanvas'
 import { RoleTyper } from '../components/RoleTyper'
 import { heroStatus, profile } from '../data/profile'
@@ -7,10 +8,10 @@ import { usePrefersReducedMotion } from '../lib/motion'
 const btn =
   'inline-flex h-11 items-center justify-center rounded-md px-5 font-mono text-sm transition-colors'
 
-// Staggered entrance, ~550 ms end to end (7 items × 45 ms + 300 ms).
+// Staggered entrance, ~580 ms end to end (8 items, 40 ms apart, 300 ms each).
 const container: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.045 } },
+  show: { transition: { staggerChildren: 0.04 } },
 }
 const item: Variants = {
   hidden: { opacity: 0, y: 12 },
@@ -37,8 +38,9 @@ export function Hero({ ready }: Props) {
         variants={container}
         initial={reducedMotion ? false : 'hidden'}
         animate={ready || reducedMotion ? 'show' : 'hidden'}
-        className="relative mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-5xl flex-col justify-center px-4 py-20 sm:px-6"
+        className="relative mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-5xl items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,1fr)_31rem]"
       >
+        <div>
         <m.div variants={item} className="flex flex-wrap items-center gap-3">
           <p className="font-mono text-xs uppercase tracking-widest text-accent-2">{profile.location}</p>
           {profile.openToWork && (
@@ -56,13 +58,9 @@ export function Hero({ ready }: Props) {
           {profile.name}
         </m.h1>
 
-        {/* Two lines reserved on phones so the longest role never shifts the layout. */}
-        <m.p
-          variants={item}
-          className="mt-4 min-h-[3.5rem] font-mono text-base text-accent sm:min-h-0 sm:text-lg"
-        >
+        <m.p variants={item} className="mt-4 flex gap-[1ch] font-mono text-base text-accent sm:text-lg">
           <span aria-hidden="true" className="text-muted">
-            &gt;{' '}
+            &gt;
           </span>
           <RoleTyper
             roles={profile.heroRoles}
@@ -103,6 +101,12 @@ export function Hero({ ready }: Props) {
             </span>
             {profile.ui.openTerminal}
           </button>
+        </m.div>
+        </div>
+
+        {/* Desktop only; not rendered into layout below 1024 px. */}
+        <m.div variants={item} className="hidden lg:block">
+          <CodeCard />
         </m.div>
       </m.div>
     </section>

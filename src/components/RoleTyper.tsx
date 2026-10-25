@@ -44,12 +44,26 @@ export function RoleTyper({ roles, staticText, active, reducedMotion }: Props) {
 
   if (reducedMotion) return <>{staticText}</>
 
+  // The invisible longest role shares a grid cell with the typed text, so the line is always
+  // exactly as tall as the longest role wraps to at this width: no shift, no oversized gap.
+  const longest = roles.reduce((a, b) => (b.length > a.length ? b : a), '')
+
   return (
     <>
       <span className="sr-only">{staticText}</span>
-      <span aria-hidden="true">
-        {roles[index].slice(0, length)}
-        <span className="text-accent motion-safe:animate-blink">▍</span>
+      <span aria-hidden="true" className="grid">
+        <span className="invisible col-start-1 row-start-1">{longest}▍</span>
+        <span className="relative col-start-1 row-start-1">
+          {roles[index].slice(0, length)}
+          {/* Moved with a transform (monospace, so n chars = n ch): a caret that reflows with the
+              text counts as layout shift on every keystroke. Every role fits one line from 360 px. */}
+          <span
+            className="absolute left-0 top-0 text-accent motion-safe:animate-blink"
+            style={{ transform: `translateX(${length}ch)` }}
+          >
+            ▍
+          </span>
+        </span>
       </span>
     </>
   )

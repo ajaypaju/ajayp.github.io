@@ -1,5 +1,5 @@
 import { Section } from '../components/Section'
 
 export function Metrics() {
-  return <Section id="metrics" index="01" />
+  return <Section id="metrics" />
 }

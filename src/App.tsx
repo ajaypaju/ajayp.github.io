@@ -15,6 +15,7 @@ import { Hero } from './sections/Hero'
 import { Metrics } from './sections/Metrics'
 import { PromptToTask } from './sections/PromptToTask'
 import { Skills } from './sections/Skills'
+import { WhatIDo } from './sections/WhatIDo'
 
 const year = new Date().getFullYear()
 
@@ -36,6 +37,7 @@ export default function App() {
       <main id="main">
         <Hero ready={!booting} />
         <Metrics />
+        <WhatIDo />
         <PromptToTask />
         <Architecture />
         <Experience />

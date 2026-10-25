@@ -5,6 +5,7 @@
 export type SectionId =
   | 'hero'
   | 'metrics'
+  | 'what-i-do'
   | 'prompt-to-task'
   | 'architecture'
   | 'experience'
@@ -48,7 +49,6 @@ export interface Role {
 
 export interface Company {
   name: string
-  product: string
   location: string
   roles: Role[]
 }
@@ -58,9 +58,18 @@ export interface SkillGroup {
   items: string[]
 }
 
-export interface Project {
-  name: string
+export interface Capability {
+  title: string
   description: string
+}
+
+/** Fields of the hero code card that aren't derived from other facts. */
+export interface CodeCard {
+  fileName: string
+  variable: string
+  focus: string[]
+  stack: string[]
+  status: string
 }
 
 export interface Education {
@@ -70,6 +79,11 @@ export interface Education {
 }
 
 export interface Profile {
+  /** <title> and meta description; injected into index.html at build time. */
+  meta: {
+    title: string
+    description: string
+  }
   name: string
   title: string
   /** One-line value proposition for the hero. */
@@ -90,7 +104,9 @@ export interface Profile {
   metrics: Metric[]
   experience: Company[]
   skills: SkillGroup[]
-  projects: Project[]
+  /** "What I do" cards; also the terminal `capabilities` command (alias `projects`). */
+  capabilities: Capability[]
+  codeCard: CodeCard
   awards: string[]
   education: Education[]
   sections: SectionMeta[]
@@ -102,18 +118,24 @@ export interface Profile {
     openTerminal: string
     openTerminalSoon: string
     openToWork: string
-    inProduction: string
+    statusPrefix: string
+    platformServing: string
     bootHost: string
     bootSkipHint: string
   }
 }
 
 export const profile: Profile = {
+  meta: {
+    title: 'Ajay P · Technical Lead · Full-Stack Engineer',
+    description:
+      'Ajay P, Technical Lead and Full-Stack Engineer. Designs, builds and scales a multi-tenant SaaS platform used by 500+ organizations, and integrates AI that automates real work.',
+  },
   name: 'Ajay P',
   title: 'Technical Lead · Full-Stack Engineer',
   tagline:
-    'I build and run a production multi-tenant SaaS used by 500+ organizations, and lead the AI automation on top of it.',
-  heroRoles: ['Technical Lead', 'Full-Stack Engineer', 'Builder of MCP servers and AI bot users'],
+    'I design, build and scale SaaS platforms, and integrate AI that automates real work.',
+  heroRoles: ['Technical Lead', 'Full-Stack Engineer', 'System Design & Architecture', 'AI Integration & Automation'],
   openToWork: false,
   location: 'Calicut, Kerala, India',
   email: 'ajaypaju008@gmail.com',
@@ -124,19 +146,18 @@ export const profile: Profile = {
   cvPath: '/Ajay_P_CV.pdf',
 
   summary:
-    'Technical Lead with 5+ years building and running Desklog.io, a production multi-tenant SaaS used by 500+ organizations. I lead the platform’s AI and automation work and own backend architecture, AWS infrastructure and production reliability end to end.',
+    'Technical Lead with 5+ years designing, building and running a production multi-tenant SaaS platform used by 500+ organizations. I own architecture, AWS infrastructure and production reliability, and lead AI integration and automation.',
 
   metrics: [
     { id: 'organizations', value: '500+', label: 'organizations' },
-    { id: 'years', value: '5+', label: 'years shipping Desklog.io' },
-    { id: 'latency', value: '~300 ms', label: 'reporting API latency', from: '~900 ms', to: '~300 ms' },
+    { id: 'years', value: '5+', label: 'years building production SaaS' },
+    { id: 'latency', value: '~300\u00a0ms', label: 'reporting API latency', from: '~900\u00a0ms', to: '~300\u00a0ms' },
     { id: 'report-speed', value: '60%', label: 'faster report generation' },
   ],
 
   experience: [
     {
       name: 'Infinite Open Source Solutions LLP',
-      product: 'Desklog.io',
       location: 'Calicut, Kerala',
       roles: [
         {
@@ -144,9 +165,9 @@ export const profile: Profile = {
           start: 'Apr 2026',
           end: 'Present',
           highlights: [
-            'Own backend architecture, technical delivery and production reliability for Desklog.io.',
-            'Built a role-based MCP server that exposes Desklog data and actions to AI clients, scoped to each user’s role and permissions.',
-            'Connected Claude Code to Desklog so a plain-language prompt creates tasks automatically.',
+            'Own backend architecture, technical delivery and production reliability for the platform.',
+            'Built a role-based MCP server that exposes the platform’s data and actions to AI clients, scoped to each user’s role and permissions.',
+            'Connected Claude Code to the platform so a plain-language prompt creates tasks automatically.',
             'Introduced AI bot users: agent accounts that are assigned tasks like any team member and carry out automated work.',
             'Built LLM-powered chat workflows for in-product help and assisted automation.',
             'Manage AWS infrastructure (EC2, RDS, S3), monitoring and deployment workflows, including on-premise deployments.',
@@ -159,7 +180,7 @@ export const profile: Profile = {
           end: 'Mar 2026',
           highlights: [
             'Built Laravel REST APIs and frontend modules for time tracking, project management, leave workflows, screenshot capture, activity logging and reporting.',
-            'Cut reporting API latency from ~900 ms to ~300 ms and improved report generation speed 60% through MySQL query optimization and Redis caching.',
+            'Cut reporting API latency from ~900\u00a0ms to ~300\u00a0ms and improved report generation speed 60% through MySQL query optimization and Redis caching.',
             'Designed and optimized MySQL and MongoDB schemas for backend and reporting workloads.',
             'Integrated Stripe, Razorpay, AWS S3, email/SMS, webhooks and OAuth2 SSO.',
             'Implemented RBAC with Laravel policies and middleware; built queue-based background jobs and data-aggregation pipelines.',
@@ -179,7 +200,7 @@ export const profile: Profile = {
       group: 'Backend',
       items: ['PHP', 'Laravel (9–13)', 'Node.js', 'NestJS', 'REST APIs', 'Queues and background jobs'],
     },
-    { group: 'Frontend', items: ['HTML', 'CSS', 'JavaScript'] },
+    { group: 'Frontend', items: ['React', 'TypeScript (this website)', 'HTML', 'CSS', 'JavaScript'] },
     {
       group: 'Cloud & DevOps',
       items: ['AWS (EC2, S3, RDS)', 'Docker', 'GitLab CI/CD', 'GitHub', 'Cloudflare', 'Linux', 'Monitoring'],
@@ -192,28 +213,46 @@ export const profile: Profile = {
     { group: 'Auth & Security', items: ['OAuth2 SSO', 'RBAC (Laravel policies and middleware)'] },
   ],
 
-  projects: [
+  capabilities: [
     {
-      name: 'AI Chat Integration',
-      description: 'LLM-powered chat workflows for assisted automation and in-product help.',
+      title: 'System Design & Architecture',
+      description: 'Architecture decisions and new backend modules for a multi-tenant SaaS serving 500+ organizations.',
     },
     {
-      name: 'Attendance & Time-Tracking Platform',
-      description: 'Activity logging, approval flows and reporting.',
+      title: 'SaaS Engineering',
+      description: 'Multi-tenancy, RBAC, queue-based background jobs, payments with Stripe and Razorpay, OAuth2 SSO.',
     },
     {
-      name: 'Multi-Tenant Project Management',
-      description: 'Project, task, leave and reporting modules for organization-level SaaS.',
+      title: 'AI Integration & Automation',
+      description:
+        'LLM-powered chat, a role-based MCP server, a Claude Code integration that turns prompts into tasks, and AI bot users that complete assigned work.',
     },
     {
-      name: 'On-Premise Deployment',
-      description: 'Environment-specific setup and configuration for isolated infrastructure.',
+      title: 'Full-Stack Development',
+      description: 'REST APIs and frontend modules with Laravel, Node.js and NestJS.',
+    },
+    {
+      title: 'Performance & Reliability',
+      description:
+        'Cut reporting API latency from ~900\u00a0ms to ~300\u00a0ms with MySQL optimization and Redis caching; lead incident resolution.',
+    },
+    {
+      title: 'Cloud & DevOps',
+      description: 'AWS (EC2, RDS, S3), Docker, GitLab CI/CD, monitoring, and on-premise deployments.',
     },
   ],
 
+  codeCard: {
+    fileName: 'ajay.ts',
+    variable: 'ajay',
+    focus: ['SaaS architecture', 'AI automation', 'Full-stack'],
+    stack: ['Laravel', 'Node.js', 'NestJS', 'React', 'AWS'],
+    status: 'shipping',
+  },
+
   awards: [
     'Winner, company-wide AI Prompt Engineering Challenge',
-    'Best R&D Team Performer (2023–2025), Desklog SaaS platform',
+    'Best R&D Team Performer (2023–2025), SaaS platform',
     'Best Programmer Award (2022)',
   ],
 
@@ -239,10 +278,16 @@ export const profile: Profile = {
       placeholder: 'Animated metrics strip goes here.',
     },
     {
+      id: 'what-i-do',
+      navLabel: 'What I do',
+      heading: 'What I do',
+      placeholder: '',
+    },
+    {
       id: 'prompt-to-task',
       navLabel: 'AI',
       heading: 'Prompt → Task',
-      placeholder: 'Walkthrough: Claude Code prompt → role-based MCP server → Desklog API → AI bot user.',
+      placeholder: 'Walkthrough: Claude Code prompt → role-based MCP server → platform API → AI bot user.',
     },
     {
       id: 'architecture',
@@ -283,7 +328,8 @@ export const profile: Profile = {
     openTerminal: 'Open Terminal',
     openTerminalSoon: 'Terminal mode is coming soon',
     openToWork: 'Open to new roles',
-    inProduction: 'in production',
+    statusPrefix: 'Currently',
+    platformServing: 'SaaS platform serving',
     bootHost: 'ajay.dev',
     bootSkipHint: 'press any key to skip',
   },
@@ -305,10 +351,21 @@ export const metricById = (id: MetricId): Metric => {
 
 const organizations = metricById('organizations')
 const latency = metricById('latency')
-const currentCompany = profile.experience[0]
+const years = metricById('years')
+const currentRole = profile.experience[0].roles[0]
 
-/** Hero status line, e.g. "Desklog.io · in production · 500+ organizations". */
-export const heroStatus = `${currentCompany.product} · ${profile.ui.inProduction} · ${organizations.value} ${organizations.label}`
+/** Hero status line: "Currently · Technical Lead · SaaS platform serving 500+ organizations". */
+export const heroStatus = `${profile.ui.statusPrefix} · ${currentRole.title} · ${profile.ui.platformServing} ${organizations.value} ${organizations.label}`
+
+/** Hero code card: `const ajay = { ... }`, in display order. */
+export const codeCardEntries: [key: string, value: string | string[]][] = [
+  ['role', currentRole.title],
+  ['experience', `${years.value} years`],
+  ['focus', profile.codeCard.focus],
+  ['stack', profile.codeCard.stack],
+  ['scale', `${organizations.value} ${organizations.label}`],
+  ['status', profile.codeCard.status],
+]
 
 export interface BootLine {
   kind: 'prompt' | 'ok' | 'plain'
@@ -317,7 +374,7 @@ export interface BootLine {
 
 export const bootLines: BootLine[] = [
   { kind: 'prompt', text: `booting ${profile.ui.bootHost}` },
-  { kind: 'ok', text: `loading profile: ${profile.name}, ${currentCompany.roles[0].title}` },
+  { kind: 'ok', text: `loading profile: ${profile.name}, ${currentRole.title}` },
   { kind: 'ok', text: `tenants online: ${organizations.value} ${organizations.label}` },
   { kind: 'ok', text: `redis cache warm: reporting latency ${latency.from} → ${latency.to}` },
   { kind: 'ok', text: 'mcp server: role-based access enabled' },

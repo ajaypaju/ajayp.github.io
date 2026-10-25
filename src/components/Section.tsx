@@ -1,16 +1,18 @@
 import type { ReactNode } from 'react'
-import { sectionById, type SectionId } from '../data/profile'
+import { profile, sectionById, type SectionId } from '../data/profile'
+
+// Numbered in page order (hero excluded), so adding a section renumbers the rest.
+const numbered = profile.sections.filter((s) => s.id !== 'hero').map((s) => s.id)
 
 interface Props {
   id: SectionId
-  /** Two-digit index shown as a mono label, e.g. "03". */
-  index: string
   children?: ReactNode
 }
 
-export function Section({ id, index, children }: Props) {
+export function Section({ id, children }: Props) {
   const meta = sectionById(id)
   const headingId = `${id}-heading`
+  const index = String(numbered.indexOf(id) + 1).padStart(2, '0')
   return (
     <section id={id} aria-labelledby={headingId} className="border-t border-line py-16 sm:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">

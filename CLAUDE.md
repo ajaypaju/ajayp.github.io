@@ -1,8 +1,18 @@
 # Ajay P — Portfolio
 
-Static single-page portfolio for a backend/AI engineer that feels like a **developer tool, not a template**.
+Static single-page **Technical Lead** portfolio that feels like a **developer tool, not a template**.
 Recruiters must understand the value in 10 seconds; engineers should find depth and easter eggs.
 **Every visual effect must carry real content** (a real metric, a real system Ajay built) — never decoration alone.
+
+## Positioning (applies to every step)
+- This is a Technical Lead portfolio, **not a showcase of the employer's product**.
+- **Never show the product name "Desklog" / "Desklog.io"** anywhere visible: hero, status line, boot sequence,
+  metrics, section text, terminal output, page title, meta tags. Say "the platform" or
+  "a multi-tenant SaaS platform" instead.
+- The employer, **Infinite Open Source Solutions LLP**, appears **only in the Experience section**.
+- **Keep every real number and achievement** (500+ organizations, 5+ years, ~900 ms → ~300 ms, 60%, the MCP
+  server, Claude Code integration, AI bot users, awards). Only the product name goes.
+- Check before every commit: `grep -rli desklog dist/` must find nothing (the CV PDF is exempt).
 
 ## Stack (fixed — do not change without asking)
 - Vite + React + TypeScript (`strict: true`), Tailwind CSS v4 (`@tailwindcss/vite`), Framer Motion.
@@ -49,10 +59,13 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
   terminal UI. Loaded from Google Fonts with `display=swap`.
 
 ## Layout
-- `src/data/profile.ts` — all content + types, including `sections` (id, nav label, heading, placeholder).
-  Derived lines (`heroStatus`, `bootLines`) are composed there from the facts, never retyped.
-- `src/components/` — `Nav`, `ThemeToggle`, `Section` (shared section shell), `NetworkCanvas`, `RoleTyper`,
-  `CommandPalette`, `TerminalOverlay`.
+- `src/data/profile.ts` — all content + types, including `sections` (id, nav label, heading, placeholder;
+  their order is page order and drives the `01 / …` labels), `capabilities`, `codeCard`, and `meta`.
+  Derived lines (`heroStatus`, `bootLines`, `codeCardEntries`) are composed there from the facts, never retyped.
+- `index.html` gets `<title>` and the meta description from `profile.meta` via the `profile-meta` plugin in
+  `vite.config.ts` (`%PROFILE_TITLE%`, `%PROFILE_DESCRIPTION%`).
+- `src/components/` — `Nav`, `ThemeToggle`, `Section` (shared section shell, auto-numbered), `NetworkCanvas`,
+  `RoleTyper`, `CodeCard` (hero, 1024 px+ only), `CommandPalette`, `TerminalOverlay`.
 - `src/sections/` — one component per section.
 - `src/lib/` — `theme.ts`, `storage.ts` (the only place storage is touched), `motion.ts`
   (`usePrefersReducedMotion`), `boot.ts` (once-per-session check).
@@ -64,16 +77,21 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 - Hero LCP elements (name, tagline) must never start at opacity 0; they only slide.
 - Google Fonts load non-blocking (`media="print"` swap in `index.html`); don't make them render-blocking again.
 - The boot overlay covers the page but the page renders underneath from the first frame.
+- Zero layout shift: typing carets move with `transform` (see `RoleTyper`), never by reflowing after the text.
+  Reserve space for changing text with an invisible copy of the longest value in the same grid cell.
+- Large text blocks that aren't the intended LCP (e.g. the code card) render as many small line blocks.
+- Keep numbers and units together with a non-breaking space (`'~300\u00a0ms'`).
 
 ## Section plan (built step by step — only build the step currently asked for)
 1. **Boot sequence** — 1–1.5 s of terminal boot lines on first visit only (sessionStorage), skippable with any
    key or click, skipped entirely under reduced motion.
-2. **Hero** — name, title, one-line value proposition; buttons: Download CV, Contact, Open Terminal.
-   Subtle lightweight canvas network background suggesting a multi-tenant system.
+2. **Hero** — name, cycling role line, tagline, status line, buttons (Download CV, Contact, Open Terminal),
+   canvas network background, and on 1024 px+ a code-editor card (`ajay.ts`) generated from profile.ts.
 3. **Metrics strip** — 500+ organizations, 5+ years, reporting latency ~900 ms → ~300 ms (animated),
    60% faster report generation.
+3b. **What I do** (built in Step 2.5) — the 6 `capabilities` as cards (3 / 2 / 1 columns), hover lift on desktop.
 4. **Prompt → Task (centerpiece)** — auto-playing walkthrough: prompt typed in Claude Code → role-based MCP
-   server checks permissions → Desklog API creates the task → AI bot user picks it up and completes it.
+   server checks permissions → the platform API creates the task → AI bot user picks it up and completes it.
    Terminal transcript on one side, flow diagram on the other, steps highlighted in sync, replay button.
 5. **Architecture map** — interactive diagram of a generic multi-tenant SaaS: clients → Cloudflare →
    Laravel/Node APIs on AWS EC2 → queues/background jobs → Redis cache → MySQL/MongoDB on RDS, S3 for files.
@@ -84,9 +102,13 @@ Recruiters must understand the value in 10 seconds; engineers should find depth 
 9. **Contact** — terminal-styled block with copy-email-to-clipboard and links.
 10. **Global** — Ctrl/Cmd+K command palette (jump to sections, download CV, copy email, toggle theme, open
     terminal) and a full terminal-mode overlay with commands: `help`, `whoami`, `about`, `experience`,
-    `skills`, `projects`, `awards`, `contact`, `cv`, `theme`, `clear`, `exit`, plus the easter egg
+    `skills`, `capabilities` (alias `projects`: the 6 capabilities plus the three AI systems — MCP server,
+    Claude Code integration, AI bot users), `awards`, `contact`, `cv`, `theme`, `clear`, `exit`, plus the easter egg
     `sudo hire-ajay` which opens a pre-filled email.
 
 ## Progress
 - [x] Step 1 — scaffold, CLAUDE.md, profile data, tokens/fonts/theme toggle, page skeleton with section stubs.
 - [x] Step 2 — data updates (skills, projects, openToWork), boot sequence, hero, network canvas.
+- [x] Step 2.5 — repositioned as a Technical Lead portfolio (no product name), capabilities + "What I do",
+  hero code card, meta from profile.ts, zero-CLS caret. CV PDF still missing: the copy in Downloads has the
+  phone number, so it was not copied.

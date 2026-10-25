@@ -62,13 +62,12 @@ export function BootSequence({ onDone }: Props) {
           const lineElapsed = elapsed - i * LINE_GAP
           if (lineElapsed <= 0) return null
           const chars = Math.ceil((Math.min(lineElapsed, LINE_TYPE) / LINE_TYPE) * line.text.length)
-          const typing = chars < line.text.length
           return (
             <p key={i} className="break-words text-muted">
               {line.kind === 'prompt' && <span className="text-accent-2">&gt; </span>}
               {line.kind === 'ok' && <span className="text-accent">[ ok ] </span>}
+              {/* No caret: lines wrap on phones, and a caret that reflows with the text counts as layout shift. */}
               {line.text.slice(0, chars)}
-              {typing && <span className="text-accent">▍</span>}
             </p>
           )
         })}
